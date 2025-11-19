@@ -82,7 +82,7 @@ public static class Patch
                 if (!currentRange.Equals(default))
                 {
                     if (sb.Length > 0) sb.AppendLine();
-                    sb.Append(text[currentRange].ToString());
+                    sb.Append(text[currentRange]);
                     currentRange = default;
                 }
 
@@ -114,7 +114,7 @@ public static class Patch
         if (!currentRange.Equals(default))
         {
             if (sb.Length > 0) sb.AppendLine();
-            sb.Append(text[currentRange].ToString());
+            sb.Append(text[currentRange]);
         }
 
         return sb.ToString();
