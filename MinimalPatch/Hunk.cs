@@ -75,8 +75,10 @@ internal sealed class Hunk
 
     public Dictionary<int, List<LineOperation>> GetLineNumberToOperationsDictionary()
     {
-        var lineNumToOps = new Dictionary<int, List<LineOperation>>(LengthA);
-        lineNumToOps[StartA] = [];
+        var lineNumToOps = new Dictionary<int, List<LineOperation>>(LengthA)
+        {
+            [StartA] = []
+        };
         int lineNumber = StartA - 1;
 
         foreach (var op in LineOperations)
