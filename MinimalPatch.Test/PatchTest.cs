@@ -59,18 +59,17 @@ public sealed class PatchTest
     {
         var diff = File.ReadAllText(Path.Join("Data", $"hamlet_ending_{number}.patch"));
         var expected = File.ReadAllText(Path.Join("Data", "hamlet_ending_new.txt"));
+        using StreamReader original = new(Path.Join("Data", "hamlet_ending_old.txt"));
 
-        using StreamReader inStream = new(Path.Join("Data", "hamlet_ending_old.txt"));
-        using MemoryStream memStream = new();
-        using StreamWriter outStream = new(memStream);
+        using MemoryStream actualStream = new();
+        using StreamWriter actualWriter = new(actualStream);
+        using StreamReader actualReader = new(actualStream);
 
-        await Patch.ApplyAsync(diff, inStream, outStream);
+        await Patch.ApplyAsync(diff, original, actualWriter);
 
-        await outStream.FlushAsync();
-        memStream.Position = 0;
-        using StreamReader outStreamReader = new(memStream);
-
-        var actual = await outStreamReader.ReadToEndAsync();
+        await actualWriter.FlushAsync();
+        actualStream.Position = 0;
+        var actual = await actualReader.ReadToEndAsync();
 
         Assert.AreEqual(expected, actual);
     }
