@@ -19,10 +19,8 @@ along with MinimalPatch. If not, see <https://www.gnu.org/licenses/>.
 
 namespace MinimalPatch.Internal;
 
-internal sealed class LineOperation
+internal readonly record struct LineOperation(Range Range, Operation Operation)
 {
-    public required Range Range { get; init; }
-    public required Operation Operation { get; init; }
     public bool IsALine() => Operation != Operation.Insert;  // All A-Lines are either `Equal` or `Delete`
     public bool IsBLine() => Operation != Operation.Delete;  // All B-Lines are either `Equal` or `Insert`
 }

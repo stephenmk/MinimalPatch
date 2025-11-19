@@ -17,8 +17,6 @@ You should have received a copy of the GNU General Public License
 along with MinimalPatch. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text;
-
 namespace MinimalPatch.Internal;
 
 internal sealed class Hunk
@@ -27,7 +25,7 @@ internal sealed class Hunk
     public int LengthA { get; }
     public int StartB { get; }
     public int LengthB { get; }
-    public List<LineOperation> LineOperations { get; } = [];
+    public List<LineOperation> LineOperations { get; }
 
     public Hunk(ReadOnlySpan<char> header)
     {
@@ -52,6 +50,7 @@ internal sealed class Hunk
                 break;
             }
         }
+        LineOperations = new(int.Max(LengthA, LengthB));
     }
 
     private static (int, int) GetStartAndLength(ReadOnlySpan<char> text)
@@ -81,24 +80,24 @@ internal sealed class Hunk
         };
         int lineNumber = StartA - 1;
 
-        foreach (var op in LineOperations)
+        foreach (var lineOp in LineOperations)
         {
-            if (op.IsALine())
+            if (lineOp.IsALine())
             {
                 lineNumber++;
                 if (lineNumToOps.TryGetValue(lineNumber, out var ops))
                 {
-                    ops.Add(op);
+                    ops.Add(lineOp);
                 }
                 else
                 {
-                    lineNumToOps[lineNumber] = [op];
+                    lineNumToOps[lineNumber] = [lineOp];
                 }
             }
             else
             {
                 int effectiveLineNum = int.Max(lineNumber, StartA);
-                lineNumToOps[effectiveLineNum].Add(op);
+                lineNumToOps[effectiveLineNum].Add(lineOp);
             }
         }
         return lineNumToOps;
