@@ -1,0 +1,110 @@
+--- hamlet_ending_old.txt
++++ hamlet_ending_new.txt
+@@ -1,2 +1 @@
++Enter Fortinbras, and English Ambassador, with drum, colours, and Attendants.
+-Enter Fortinbras and English Ambassador, with Drumme,
+-Colours, and Attendants.
+@@ -8,2 +7,2 @@
++What is it ye would see?
+-What is it ye would see;
++If aught of woe or wonder, cease your search.
+-If ought of woe, or wonder, cease your search.
+@@ -12,4 +11,4 @@
+-His quarry cries on hauocke. Oh proud death,
++This quarry cries on havoc. O proud death!
+-What feast is toward in thine eternall Cell.
++What feast is toward in thine eternal cell,
+-That thou so many Princes, at a shoote,
++That thou so many princes at a shot
+-So bloodily hast strooke.
++So bloodily hast struck?
+@@ -18,6 +17,6 @@
++The sight is dismal;
+-The sight is dismall,
++And our affairs from England come too late:
+-And our affaires from England come too late,
++The ears are senseless that should give us hearing,
+-The eares are senselesse that should giue vs hearing,
++To tell him his commandment is fulfill'd,
+-To tell him his command'ment is fulfill'd,
++That Rosencrantz and Guildenstern are dead.
+-​That Rosincrance and Guildensterne are dead:
++Where should we have our thanks?
+-Where should we haue our thankes?
+@@ -27,14 +26,14 @@
+-Had it th'abilitie of life to thanke you:
++Had it the ability of life to thank you:
+-He neuer gaue command'ment for their death.
++​He never gave commandment for their death.
+-But since so iumpe vpon this bloodie question,
++But since, so jump upon this bloody question,
+-You from the Polake warres, and you from England
++You from the Polack wars, and you from England,
+-Are heere arriued. Giue order that these bodies
++Are here arriv'd, give order that these bodies
+-High on a stage be placed to the view,
++High on a stage be placed to the view;
+-And let me spcake to th'yet vnknowing world,
++And let me speak to the yet unknowing world
+-How these things came about. So shall you heare
++How these things came about: so shall you hear
+-Of carnall, bloudie, and vnnaturall acts,
++Of carnal, bloody, and unnatural acts,
+-Of accidentall iudgements, casuall slaughters
++Of accidental judgments, casual slaughters;
+-Of death's put on by cunning, and forc'd cause,
++Of deaths put on by cunning and forc'd cause,
+-And in this vp shot, purposes mistooke,
++And, in this upshot, purposes mistook
+-Falne on the Inuentors heads. All this can I
++Fall'n on the inventors' heads; all this can I
+-Truly deliuer.
++Truly deliver.
+@@ -43,6 +42,5 @@
+-Let vs hast to heare it,
++Let us haste to hear it,
+-And call the Noblest to the Audience.
++And call the noblest to the audience.
+-For me, with sorrow, I embrace my Fortune,
++For me, with sorrow I embrace my fortune;
+-I haue some Rites of memory in this Kingdome,
++I have some rights of memory in this kingdom,
+-Which are ro claime, my vantage doth
+-Inuite me,
++Which now to claim my vantage doth invite me.
+@@ -51,7 +49,5 @@
++Of that I shall have also cause to speak,
+-Of that I shall haue alwayes cause to speake,
++And from his mouth whose voice will draw on more:
+-And from his mouth
+-Whose voyce will draw on more:
+ But let this same be presently perform'd,
++Even while men's minds are wild, lest more mischance
+-Euen whiles mens mindes are wilde,
+-Lest more mischance
++On plots and errors happen.
+-On plots, and errors happen.
+@@ -60,10 +56,9 @@
+-Let foure Captaines
++Let four captains
+-Beare Hamlet like a Soldier to the stage,
++Bear Hamlet, like a soldier, to the stage;
+-For he was likely, had he beene put on
++For he was likely, had he been put on,
+-To haue prou'd most royally:
+-And for his passage,
++To have prov'd most royally: and, for his passage,
+-The Souldiours Musicke, and the rites of Warre
++The soldiers' music and the rites of war
+-Speake lowdly for him.
++Speak loudly for him.
+-Take vp the body; Such a fight as this
++Take up the bodies: such a sight as this
+-Becomes the field, but heere shewes much amis.
++Becomes the field, but here shows much amiss.
+-Go, bid the Souldiers shoote.
++Go, bid the soldiers shoot.
+@@ -71,2 +66,1 @@
++Exeunt marching, after the which, a peal of ordnance are shot off.
+-Exeunt Marching: after the which, a Peale of
+-Ordenance are shot off.
