@@ -19,7 +19,7 @@ along with MinimalPatch. If not, see <https://www.gnu.org/licenses/>.
 
 namespace MinimalPatch.Internal;
 
-internal enum Operation
+internal enum Operation : byte
 {
     Equal,
     Delete,
