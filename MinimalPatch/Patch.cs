@@ -28,39 +28,39 @@ public static class Patch
     /// <summary>
     /// Apply a patch to an input text and return the result.
     /// </summary>
-    /// <param name="diffText">Textual representation of the patch (unified diff format)</param>
-    /// <param name="input">Text onto which the patch is applied.</param>
+    /// <param name="patchText">Textual representation of the patch (unified diff format)</param>
+    /// <param name="originalText">Text onto which the patch is applied.</param>
     /// <returns>The patched text.</returns>
     /// <exception cref="InvalidDiffException">Thrown if the diff text cannot be parsed or if it is inconsistent with the input text.</exception>
     /// <remarks>The patch metadata must match the input text perfectly. There is no fuzzy matching.</remarks>
-    public static string Apply(ReadOnlySpan<char> diffText, ReadOnlySpan<char> input)
+    public static string Apply(ReadOnlySpan<char> patchText, ReadOnlySpan<char> originalText)
     {
         StringBuilder sb = new();
         Range currentRange = default;
-        var lineNumToOps = GetLineNumberToOperationsDictionary(diffText);
+        var lineNumberToOperations = GetLineNumberToOperationsDictionary(patchText);
         int lineNumber = 0;
 
-        foreach (var range in input.Split('\n'))
+        foreach (var range in originalText.Split('\n'))
         {
             lineNumber++;
-            if (lineNumToOps.TryGetValue(lineNumber, out var ops))
+            if (lineNumberToOperations.TryGetValue(lineNumber, out var operations))
             {
                 if (!currentRange.Equals(default))
                 {
-                    if (sb.Length > 0) sb.AppendLine();
-                    sb.Append(input[currentRange]);
+                    sb.AppendLineIfNonEmpty();
+                    sb.Append(originalText[currentRange]);
                     currentRange = default;
                 }
-                foreach (var op in ops)
+                foreach (var operation in operations)
                 {
-                    if (op.IsALine())
+                    if (operation.IsALine())
                     {
-                        ValidateALineText(input[range], op.Text, lineNumber);
+                        ValidateALineText(originalText[range], operation.Text, lineNumber);
                     }
-                    if (op.IsBLine())
+                    if (operation.IsBLine())
                     {
-                        if (sb.Length > 0) sb.AppendLine();
-                        sb.Append(op.Text);
+                        sb.AppendLineIfNonEmpty();
+                        sb.Append(operation.Text);
                     }
                 }
             }
@@ -74,23 +74,31 @@ public static class Patch
 
         if (!currentRange.Equals(default))
         {
-            if (sb.Length > 0) sb.AppendLine();
-            sb.Append(input[currentRange]);
+            sb.AppendLineIfNonEmpty();
+            sb.Append(originalText[currentRange]);
         }
 
         return sb.ToString();
     }
 
-    private static FrozenDictionary<int, List<LineOperation>> GetLineNumberToOperationsDictionary(ReadOnlySpan<char> diffText)
+    private static void AppendLineIfNonEmpty(this StringBuilder sb)
+    {
+        if (sb.Length > 0)
+        {
+            sb.AppendLine();
+        }
+    }
+
+    private static FrozenDictionary<int, List<LineOperation>> GetLineNumberToOperationsDictionary(ReadOnlySpan<char> patchText)
     {
         try
         {
-            UnifiedDiff diff = new(diffText);
+            UnifiedDiff diff = new(patchText);
             return diff.GetLineNumberToOperationsDictionary();
         }
         catch (Exception ex)
         {
-            throw new InvalidDiffException("Error occurred while parsing diff text", ex);
+            throw new InvalidDiffException("Error occurred while parsing patch text", ex);
         }
     }
 
@@ -98,7 +106,7 @@ public static class Patch
     {
         if (!sourceText.Equals(aLineText, StringComparison.Ordinal))
         {
-            throw new InvalidDiffException($"Line #{lineNumber} of input text does not match diff");
+            throw new InvalidDiffException($"Line #{lineNumber} of original text does not match the corresponding line in the patch");
         }
     }
 }
