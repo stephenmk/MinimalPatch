@@ -31,10 +31,11 @@ public static class Patch
         UnifiedDiff diff = new(diffText);
         var lineNumToOps = diff.GetLineNumberToOperationsDictionary();
 
-        int lineNumber = 1;
+        int lineNumber = 0;
         while (await readTask is string text)
         {
             readTask = inStream.ReadLineAsync();
+            lineNumber++;
             if (lineNumToOps.TryGetValue(lineNumber, out var ops))
             {
                 foreach (var op in ops)
@@ -59,7 +60,6 @@ public static class Patch
                 await writeTask;
                 writeTask = outStream.WriteLineAsync(text);
             }
-            lineNumber++;
         }
 
         await writeTask;
