@@ -50,7 +50,7 @@ public static class Patch
                     if (lineOp.IsBLine())
                     {
                         await writeTask;
-                        writeTask = outStream.WriteLineAsync(text);
+                        writeTask = outStream.WriteLineAsync(lineOp.Line);
                     }
                 }
             }
