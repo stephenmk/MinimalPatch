@@ -59,7 +59,7 @@ internal sealed class UnifiedDiff
                 {
                     throw new ArgumentException
                     (
-                        "Insert line operation found before hunk",
+                        "Line operation found before any hunks",
                         nameof(text)
                     );
                 }
