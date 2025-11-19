@@ -25,7 +25,18 @@ public sealed class PatchTest
     [TestMethod]
     public void PatchApplyTest1()
     {
-        var diff = File.ReadAllText(Path.Join("Data", "hamlet_ending1.patch"));
+        PatchApplyTest(1);
+    }
+
+    [TestMethod]
+    public void PatchApplyTest2()
+    {
+        PatchApplyTest(2);
+    }
+
+    private static void PatchApplyTest(int number)
+    {
+        var diff = File.ReadAllText(Path.Join("Data", $"hamlet_ending{number}.patch"));
         var originalText = File.ReadAllText(Path.Join("Data", "hamlet_ending_old.txt"));
         var expectedText = File.ReadAllText(Path.Join("Data", "hamlet_ending_new.txt"));
         var newText = Patch.Apply(diff, originalText);
@@ -33,12 +44,34 @@ public sealed class PatchTest
     }
 
     [TestMethod]
-    public void PatchApplyTest2()
+    public async Task PatchApplyAsyncTest1()
     {
-        var diff = File.ReadAllText(Path.Join("Data", "hamlet_ending2.patch"));
-        var originalText = File.ReadAllText(Path.Join("Data", "hamlet_ending_old.txt"));
+        await PatchApplyAsyncTest(1);
+    }
+
+    [TestMethod]
+    public async Task PatchApplyAsyncTest2()
+    {
+        await PatchApplyAsyncTest(2);
+    }
+
+    private static async Task PatchApplyAsyncTest(int number)
+    {
+        var diff = File.ReadAllText(Path.Join("Data", $"hamlet_ending{number}.patch"));
         var expectedText = File.ReadAllText(Path.Join("Data", "hamlet_ending_new.txt"));
-        var newText = Patch.Apply(diff, originalText);
+
+        using StreamReader inStream = new(Path.Join("Data", "hamlet_ending_old.txt"));
+        using MemoryStream memStream = new();
+        using StreamWriter outStream = new(memStream);
+
+        await Patch.ApplyAsync(diff, inStream, outStream);
+
+        await outStream.FlushAsync();
+        memStream.Position = 0;
+        using StreamReader outStreamReader = new(memStream);
+
+        var newText = await outStreamReader.ReadToEndAsync();
+
         Assert.AreEqual(expectedText, newText);
     }
 }
