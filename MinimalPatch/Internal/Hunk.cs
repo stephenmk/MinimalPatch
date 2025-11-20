@@ -21,53 +21,15 @@ namespace MinimalPatch.Internal;
 
 internal sealed class Hunk
 {
-    public int StartA { get; }
-    public int LengthA { get; }
-    public int StartB { get; }
-    public int LengthB { get; }
+    public HunkHeader Header { get; }
     public Dictionary<int, List<LineOperation>> LineOperations { get; }
 
     public Hunk(ReadOnlySpan<char> header)
     {
-        bool seenHeaderStart = false;
-        foreach (var range in header.Split(' '))
-        {
-            var text = header[range];
-            if (text.StartsWith('-'))
-            {
-                (StartA, LengthA) = GetStartAndLength(text[1..]);
-            }
-            else if (text.StartsWith('+'))
-            {
-                (StartB, LengthB) = GetStartAndLength(text[1..]);
-            }
-            else if (text.StartsWith('@') && !seenHeaderStart)
-            {
-                seenHeaderStart = true;
-            }
-            else
-            {
-                break;
-            }
-        }
-        LineOperations = Enumerable.Range(StartA, LengthA)
+        Header = new HunkHeader(header);
+        LineOperations = Enumerable.Range(Header.StartA, Header.LengthA)
             .Select(static x => new KeyValuePair<int, List<LineOperation>>(x, []))
             .ToDictionary();
-    }
-
-    private static (int, int) GetStartAndLength(ReadOnlySpan<char> text)
-    {
-        int i = text.IndexOf(',');
-        if (i == -1)
-        {
-            return (int.Parse(text), 1);
-        }
-        else
-        {
-            int start = int.Parse(text[..i]);
-            int length = int.Parse(text[(i + 1)..]);
-            return (start, length);
-        }
     }
 
     public bool LengthsAreConsistent()
@@ -82,6 +44,6 @@ internal sealed class Hunk
                 if (op.IsOutputLine()) bCount++;
             }
         }
-        return LengthA == aCount && LengthB == bCount;
+        return Header.LengthA == aCount && Header.LengthB == bCount;
     }
 }

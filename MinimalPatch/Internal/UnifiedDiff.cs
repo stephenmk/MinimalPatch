@@ -53,7 +53,7 @@ internal sealed class UnifiedDiff
                     AddHunk(hunk);
                 }
                 hunk = new Hunk(line);
-                origLineNum = hunk.StartA - 1;
+                origLineNum = hunk.Header.StartA - 1;
             }
             else if (line.Length > 0 && GetLineOperation(line[0]) is Operation operation)
             {
@@ -69,7 +69,7 @@ internal sealed class UnifiedDiff
                 {
                     origLineNum++;
                 }
-                int idx = int.Max(origLineNum, hunk.StartA);
+                int idx = int.Max(origLineNum, hunk.Header.StartA);
                 hunk.LineOperations[idx].Add(new LineOperation
                 {
                     Range = new Range(range.Start.Value + 1, range.End),
