@@ -30,12 +30,16 @@ internal sealed class Hunk
     {
         Header = new HunkHeader(header);
 
+        Dictionary<int, List<LineOperation>> lineOperations = new(Header.LengthA);
+        for (int i = 0; i < Header.LengthA; i++)
+        {
+            // Adjusting the initial capacity of the lists
+            // doesn't appear to affect performance much.
+            lineOperations.Add(Header.StartA + i, []);
+        }
+
         // `.AsReadOnly()` because no additional keys should be added.
-        LineOperations = Enumerable
-            .Range(Header.StartA, Header.LengthA)
-            .Select(static x => new KeyValuePair<int, List<LineOperation>>(x, []))
-            .ToDictionary()
-            .AsReadOnly();
+        LineOperations = lineOperations.AsReadOnly();
     }
 
     public bool LengthsAreConsistent()
