@@ -17,19 +17,25 @@ You should have received a copy of the GNU General Public License
 along with MinimalPatch. If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.ObjectModel;
+
 namespace MinimalPatch.Internal;
 
 internal sealed class Hunk
 {
     public HunkHeader Header { get; }
-    public Dictionary<int, List<LineOperation>> LineOperations { get; }
+    public ReadOnlyDictionary<int, List<LineOperation>> LineOperations { get; }
 
     public Hunk(ReadOnlySpan<char> header)
     {
         Header = new HunkHeader(header);
-        LineOperations = Enumerable.Range(Header.StartA, Header.LengthA)
+
+        // `.AsReadOnly()` because no additional keys should be added.
+        LineOperations = Enumerable
+            .Range(Header.StartA, Header.LengthA)
             .Select(static x => new KeyValuePair<int, List<LineOperation>>(x, []))
-            .ToDictionary();
+            .ToDictionary()
+            .AsReadOnly();
     }
 
     public bool LengthsAreConsistent()
