@@ -83,7 +83,7 @@ public static class Patch
     {
         if (sb.Length > 0)
         {
-            sb.AppendLine();
+            sb.Append('\n');
         }
         sb.Append(line);
     }
