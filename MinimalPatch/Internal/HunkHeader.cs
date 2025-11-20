@@ -37,6 +37,7 @@ internal readonly record struct HunkHeader
             }
             else if (subtext.StartsWith('+'))
             {
+                // StartB isn't used for anything.
                 (_, LengthB) = GetStartAndLength(subtext[1..]);
             }
             else if (subtext.StartsWith('@') && !seenHeaderStart)
