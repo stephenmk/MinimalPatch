@@ -35,7 +35,7 @@ public static class Patch
     /// <remarks>The patch metadata must match the input text perfectly. There is no fuzzy matching.</remarks>
     public static string Apply(ReadOnlySpan<char> patchText, ReadOnlySpan<char> originalText)
     {
-        StringBuilder sb = new();
+        StringBuilder sb = new(capacity: 0, maxCapacity: patchText.Length + originalText.Length);
         Range currentRange = default;
         var lineOperations = GetLineOperations(patchText);
         int lineNumber = 0;
@@ -55,7 +55,7 @@ public static class Patch
                     var operationText = patchText[operation.Range];
                     if (operation.IsOriginalLine())
                     {
-                        ValidateOriginalLineText(operationText, originalText[range], lineNumber);
+                        Validate(expected: operationText, actual: originalText[range], lineNumber);
                     }
                     if (operation.IsOutputLine())
                     {
@@ -101,7 +101,7 @@ public static class Patch
         }
     }
 
-    private static void ValidateOriginalLineText(ReadOnlySpan<char> expected, ReadOnlySpan<char> actual, int lineNumber)
+    private static void Validate(ReadOnlySpan<char> expected, ReadOnlySpan<char> actual, int lineNumber)
     {
         if (!expected.Equals(actual, StringComparison.Ordinal))
         {

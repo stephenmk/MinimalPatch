@@ -30,7 +30,7 @@ internal sealed class Hunk
     {
         Header = new HunkHeader(header);
 
-        Dictionary<int, List<LineOperation>> lineOperations = new(Header.LengthA);
+        Dictionary<int, List<LineOperation>> lineOperations = new(capacity: Header.LengthA);
         for (int i = 0; i < Header.LengthA; i++)
         {
             // Adjusting the initial capacity of the lists
