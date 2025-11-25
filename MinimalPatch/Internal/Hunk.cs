@@ -17,43 +17,23 @@ You should have received a copy of the GNU General Public License
 along with MinimalPatch. If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.ObjectModel;
-
 namespace MinimalPatch.Internal;
 
 internal sealed class Hunk
 {
     public HunkHeader Header { get; }
-    public ReadOnlyDictionary<int, List<LineOperation>> LineOperations { get; }
+    public List<LineOperation>[] LineOperations { get; }
 
     public Hunk(ReadOnlySpan<char> header)
     {
         Header = new HunkHeader(header);
 
-        Dictionary<int, List<LineOperation>> lineOperations = new(capacity: Header.LengthA);
+        LineOperations = new List<LineOperation>[Header.LengthA];
         for (int i = 0; i < Header.LengthA; i++)
         {
             // Adjusting the initial capacity of the lists
             // doesn't appear to affect performance much.
-            lineOperations.Add(Header.StartA + i, []);
+            LineOperations[i] = [];
         }
-
-        // `.AsReadOnly()` because no additional keys should be added.
-        LineOperations = lineOperations.AsReadOnly();
-    }
-
-    public bool LengthsAreConsistent()
-    {
-        int lengthA = 0;
-        int lengthB = 0;
-        foreach (var operations in LineOperations.Values)
-        {
-            foreach (var operation in operations)
-            {
-                if (operation.IsOriginalLine()) lengthA++;
-                if (operation.IsOutputLine()) lengthB++;
-            }
-        }
-        return Header.LengthA == lengthA && Header.LengthB == lengthB;
     }
 }

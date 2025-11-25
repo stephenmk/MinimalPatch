@@ -24,34 +24,39 @@ namespace MinimalPatch.Internal;
 internal sealed class UnifiedDiff
 {
     private readonly List<Hunk> _hunks = [];
-
-    public FrozenDictionary<int, List<LineOperation>> GetLineOperations()
-        => _hunks.SelectMany(static h => h.LineOperations).ToFrozenDictionary();
+    private readonly int _sumLengthA = 0;
+    private ref struct ConstructorState
+    {
+        public int CurrentDiffLineNum;
+        public int CurrentLineNumA;
+        public int CurrentLengthA;
+        public int CurrentLengthB;
+    }
 
     public UnifiedDiff(ReadOnlySpan<char> text)
     {
-        int diffLineNum = 0;
-        int origLineNum = 0;
+        ConstructorState state = new();
         Hunk? hunk = null;
 
         foreach (var range in text.Split('\n'))
         {
-            diffLineNum++;
+            state.CurrentDiffLineNum++;
             var line = text[range];
 
-            if (diffLineNum < 3)
+            if (state.CurrentDiffLineNum < 3)
             {
-                ValidateHeaderLine(line, diffLineNum);
+                ValidateHeaderLine(line, state.CurrentDiffLineNum);
             }
             else if (line.StartsWith('@'))
             {
-                AddHunk(hunk);
+                AddHunk(hunk, ref state);
                 hunk = new Hunk(line);
-                origLineNum = hunk.Header.StartA - 1;
+                _sumLengthA += hunk.Header.LengthA;
+                state.CurrentLineNumA = hunk.Header.StartA - 1;
             }
             else if (line.Length > 0 && GetLineOperation(line[0]) is Operation operation)
             {
-                AddLineOperation(hunk, operation, range, ref origLineNum);
+                AddLineOperation(hunk, operation, range, ref state);
             }
             else if (range.Start.Equals(text.Length) && range.End.Equals(text.Length))
             {
@@ -59,11 +64,11 @@ internal sealed class UnifiedDiff
             }
             else
             {
-                throw new InvalidDiffException($"Line #{diffLineNum} in unidiff text does not begin with a standard prefix");
+                throw new InvalidDiffException($"Line #{state.CurrentDiffLineNum} in unidiff text does not begin with a standard prefix");
             }
         }
 
-        AddHunk(hunk);
+        AddHunk(hunk, ref state);
     }
 
     private static void ValidateHeaderLine(ReadOnlySpan<char> line, int diffLineNum)
@@ -81,15 +86,17 @@ internal sealed class UnifiedDiff
         _ => throw new ArgumentOutOfRangeException(nameof(lineNumber))
     };
 
-    private void AddHunk(Hunk? hunk)
+    private void AddHunk(Hunk? hunk, ref ConstructorState state)
     {
         if (hunk is null)
         {
             return;
         }
-        if (hunk.LengthsAreConsistent())
+        if (state.CurrentLengthA == hunk.Header.LengthA && state.CurrentLengthB == hunk.Header.LengthB)
         {
             _hunks.Add(hunk);
+            state.CurrentLengthA = 0;
+            state.CurrentLengthB = 0;
         }
         else
         {
@@ -106,7 +113,7 @@ internal sealed class UnifiedDiff
         _ => null
     };
 
-    private static void AddLineOperation(Hunk? hunk, Operation operation, Range range, ref int origLineNum)
+    private static void AddLineOperation(Hunk? hunk, Operation operation, Range range, ref ConstructorState state)
     {
         if (hunk is null)
         {
@@ -114,18 +121,39 @@ internal sealed class UnifiedDiff
         }
         if (operation.IsFileA())
         {
-            origLineNum++;
+            state.CurrentLineNumA++;
+            state.CurrentLengthA++;
+        }
+        if (operation.IsFileB())
+        {
+            state.CurrentLengthB++;
         }
 
-        // origLineNum is initialized to StartA - 1.
-        // If the first operations are inserts, then origLineNum
+        // CurrentLineNumA is initialized to StartA - 1.
+        // If the first operations are inserts, then CurrentLineNumA
         // will be less than StartA and therefore out of range.
-        int idx = int.Max(origLineNum, hunk.Header.StartA);
+        int idx = int.Max(state.CurrentLineNumA, hunk.Header.StartA) - hunk.Header.StartA;
 
         hunk.LineOperations[idx].Add(new LineOperation
         {
             Operation = operation,
             Range = new Range(range.Start.Value + 1, range.End),
         });
+    }
+
+    public FrozenDictionary<int, List<LineOperation>> GetLineOperations()
+    {
+        var pairs = new KeyValuePair<int, List<LineOperation>>[_sumLengthA];
+        int pairIdx = 0;
+        foreach (var hunk in _hunks)
+        {
+            for (int i = 0; i < hunk.Header.LengthA; i++)
+            {
+                int lineNumber = hunk.Header.StartA + i;
+                pairs[pairIdx] = new(lineNumber, hunk.LineOperations[i]);
+                pairIdx++;
+            }
+        }
+        return pairs.ToFrozenDictionary();
     }
 }
