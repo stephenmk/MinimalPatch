@@ -36,16 +36,16 @@ internal sealed class UnifiedDiff
     {
         Hunk? hunk = null;
         CurrentHunkLength currentLength = new();
-        int currentDiffLineNum = 0;
+        byte currentDiffLineNum = 1;
 
         foreach (var range in text.Split('\n'))
         {
-            currentDiffLineNum++;
             var line = text[range];
 
             if (currentDiffLineNum < 3)
             {
                 ValidateHeaderLine(line, currentDiffLineNum);
+                currentDiffLineNum++;
             }
             else if (line.StartsWith('@'))
             {
@@ -63,14 +63,14 @@ internal sealed class UnifiedDiff
             }
             else
             {
-                throw new InvalidDiffException($"Line #{currentDiffLineNum} in unidiff text does not begin with a standard prefix");
+                throw new InvalidDiffException($"Line does not begin with a standard prefix: `{line}`");
             }
         }
 
         AddHunk(hunk, ref currentLength);
     }
 
-    private static void ValidateHeaderLine(ReadOnlySpan<char> line, int diffLineNum)
+    private static void ValidateHeaderLine(ReadOnlySpan<char> line, byte diffLineNum)
     {
         if (!line.StartsWith(HeaderPrefix(diffLineNum), StringComparison.Ordinal))
         {
@@ -78,7 +78,7 @@ internal sealed class UnifiedDiff
         }
     }
 
-    private static ReadOnlySpan<char> HeaderPrefix(int lineNumber) => lineNumber switch
+    private static ReadOnlySpan<char> HeaderPrefix(byte lineNumber) => lineNumber switch
     {
         1 => ['-', '-', '-'],
         2 => ['+', '+', '+'],
