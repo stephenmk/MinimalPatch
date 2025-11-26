@@ -26,7 +26,7 @@ internal sealed class UnifiedDiff
     private readonly List<Hunk> _hunks = [];
     private readonly int _sumLengthA = 0;
 
-    private ref struct CurrentHunkLength
+    private ref struct HunkLength
     {
         public int A;
         public int B;
@@ -35,7 +35,7 @@ internal sealed class UnifiedDiff
     public UnifiedDiff(ReadOnlySpan<char> text)
     {
         Hunk? hunk = null;
-        CurrentHunkLength currentLength = default;
+        HunkLength currentLength = default;
         byte currentDiffLineNum = 1;
 
         foreach (var range in text.Split('\n'))
@@ -71,9 +71,9 @@ internal sealed class UnifiedDiff
         AddHunk(hunk, currentLength);
     }
 
-    private static void ValidateHeaderLine(ReadOnlySpan<char> line, byte diffLineNum)
+    private static void ValidateHeaderLine(ReadOnlySpan<char> line, byte lineNumber)
     {
-        if (!line.StartsWith(HeaderPrefix(diffLineNum), StringComparison.Ordinal))
+        if (!line.StartsWith(HeaderPrefix(lineNumber), StringComparison.Ordinal))
         {
             throw new InvalidDiffException("UnifiedDiff text does not begin with the standard header");
         }
@@ -86,13 +86,13 @@ internal sealed class UnifiedDiff
         _ => throw new ArgumentOutOfRangeException(nameof(lineNumber))
     };
 
-    private void AddHunk(Hunk? hunk, CurrentHunkLength currentLength)
+    private void AddHunk(Hunk? hunk, HunkLength actualLength)
     {
         if (hunk is null)
         {
             return;
         }
-        if (currentLength.A == hunk.Header.LengthA && currentLength.B == hunk.Header.LengthB)
+        if (hunk.Header.LengthA == actualLength.A && hunk.Header.LengthB == actualLength.B)
         {
             _hunks.Add(hunk);
         }
@@ -111,7 +111,7 @@ internal sealed class UnifiedDiff
         _ => null
     };
 
-    private static void AddLineOperation(Hunk? hunk, Operation operation, Range range, ref CurrentHunkLength currentLength)
+    private static void AddLineOperation(Hunk? hunk, Operation operation, Range range, ref HunkLength currentLength)
     {
         if (hunk is null)
         {
