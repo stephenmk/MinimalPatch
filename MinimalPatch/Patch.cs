@@ -41,13 +41,18 @@ public static class Patch
     }
 
     /// <include file='docs.xml' path='docs/method[@name="Apply" and @overload="0"]/*'/>
-    public static ReadOnlySpan<char> Apply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original)
+    public static string Apply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original)
     {
         // The length of the resulting text is strictly less than the
         // combined length of the patch text and the original text.
         var destination = (new char[patch.Length + original.Length]).AsSpan();
         int charsWritten = Apply(patch, original, destination);
-        return destination[..charsWritten];
+        return string.Create
+        (
+            length: charsWritten,
+            state: destination[..charsWritten],
+            action: static (output, state) => state.CopyTo(output)
+        );
     }
 
     /// <include file='docs.xml' path='docs/method[@name="Apply" and @overload="1"]/*'/>
