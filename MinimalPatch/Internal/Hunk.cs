@@ -27,9 +27,11 @@ internal sealed class Hunk
     public Hunk(ReadOnlySpan<char> header)
     {
         Header = new HunkHeader(header);
+        // Note that Header.LengthA could be zero or negative here.
+        int operationsCount = int.Max(1, Header.LengthA);
 
-        LineOperations = new List<LineOperation>[Header.LengthA];
-        for (int i = 0; i < Header.LengthA; i++)
+        LineOperations = new List<LineOperation>[operationsCount];
+        for (int i = 0; i < operationsCount; i++)
         {
             // Adjusting the initial capacity of the lists
             // doesn't appear to affect performance much.

@@ -141,7 +141,7 @@ internal sealed class UnifiedDiff
         int pairIdx = 0;
         foreach (var hunk in _hunks)
         {
-            for (int i = 0; i < hunk.Header.LengthA; i++)
+            for (int i = 0; i < hunk.LineOperations.Length; i++)
             {
                 int lineNumber = hunk.Header.StartA + i;
                 pairs[pairIdx] = new(lineNumber, hunk.LineOperations[i]);
