@@ -128,6 +128,7 @@ internal sealed class UnifiedDiff
 
         int idx = int.Max(currentLength.A - 1, 0);
 
+        // If `idx` is too large for this array, then the header metadata was incorrect.
         hunk.LineOperations[idx].Add(new LineOperation
         {
             Operation = operation,
