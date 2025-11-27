@@ -49,7 +49,7 @@ internal readonly record struct HunkHeader
                 break;
             }
         }
-        if (StartA < 0 || LengthA < 1 || LengthB < 0)
+        if (StartA < 1 || LengthA < 1 || LengthB < 0)
         {
             throw new InvalidPatchException($"Invalid hunk header `{text}`");
         }
