@@ -149,20 +149,29 @@ internal sealed class UnifiedDiff
     public FrozenDictionary<int, List<DiffLine>> GetLineNumberToDiffs()
     {
         var pairs = new KeyValuePair<int, List<DiffLine>>[_totalLineDiffCount];
+
+        // Need to validate the line numbers manually because .ToFrozenDictionary() doesn't complain about repeated keys.
+        // https://learn.microsoft.com/en-us/dotnet/api/system.collections.frozen.frozendictionary.tofrozendictionary
+        // "If the same key appears multiple times in the input, the last one in the sequence takes precedence."
+        // "This differs from ToDictionary, where duplicate keys result in an exception."
+        var usedLineNumbers = new HashSet<int>(_totalLineDiffCount);
+
         int pairIdx = 0;
         foreach (var hunk in _hunks)
         {
             for (int i = 0; i < hunk.LineDiffs.Length; i++)
             {
                 int lineNumber = hunk.Header.StartA + i;
+                if (!usedLineNumbers.Add(lineNumber))
+                {
+                    throw new InvalidPatchException($"Patch has overlapping hunks for line number {lineNumber}");
+                }
                 pairs[pairIdx] = new(lineNumber, hunk.LineDiffs[i]);
                 pairIdx++;
             }
         }
 
-        // https://learn.microsoft.com/en-us/dotnet/api/system.collections.frozen.frozendictionary.tofrozendictionary
-        // "If the same key appears multiple times in the input, the last one in the sequence takes precedence."
-        // "This differs from ToDictionary, where duplicate keys result in an exception."
+        // TODO: Use FrozenDictionary.Create() instead. Doesn't appear to be available in dotnet 9.0?
         return pairs.ToFrozenDictionary();
     }
 }
