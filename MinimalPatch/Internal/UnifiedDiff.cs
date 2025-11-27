@@ -159,6 +159,10 @@ internal sealed class UnifiedDiff
                 pairIdx++;
             }
         }
+
+        // https://learn.microsoft.com/en-us/dotnet/api/system.collections.frozen.frozendictionary.tofrozendictionary
+        // "If the same key appears multiple times in the input, the last one in the sequence takes precedence."
+        // "This differs from ToDictionary, where duplicate keys result in an exception."
         return pairs.ToFrozenDictionary();
     }
 }
