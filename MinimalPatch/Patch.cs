@@ -25,21 +25,6 @@ namespace MinimalPatch;
 /// <include file='docs.xml' path='docs/class[@name="Patch"]/*'/>
 public static class Patch
 {
-    /// <include file='docs.xml' path='docs/method[@name="TryApply"]/*'/>
-    public static bool TryApply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original, Span<char> destination, out int charsWritten)
-    {
-        try
-        {
-            charsWritten = Apply(patch, original, destination);
-            return true;
-        }
-        catch
-        {
-            charsWritten = default;
-            return false;
-        }
-    }
-
     /// <include file='docs.xml' path='docs/method[@name="Apply" and @overload="0"]/*'/>
     public static string Apply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original)
     {
