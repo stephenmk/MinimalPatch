@@ -22,17 +22,10 @@ using MinimalPatch.Internal;
 
 namespace MinimalPatch;
 
+/// <include file='docs.xml' path='docs/class[@name="Patch"]/*'/>
 public static class Patch
 {
-    /// <summary>
-    /// Attempt to fill a preallocated character span with the result of a patch applied to an input text.
-    /// </summary>
-    /// <param name="patch">Textual representation of the patch (unified diff format)</param>
-    /// <param name="original">Text onto which the patch is applied.</param>
-    /// <param name="destination">Buffer for containing the patched text.</param>
-    /// <param name="charsWritten">The number of characters written to the destination buffer.</param>
-    /// <returns>A value indicating whether the operation succeeded.</returns>
-    /// <remarks>The patch metadata must match the input text perfectly. There is no fuzzy matching.</remarks>
+    /// <include file='docs.xml' path='docs/method[@name="TryApply"]/*'/>
     public static bool TryApply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original, Span<char> destination, out int charsWritten)
     {
         try
@@ -47,30 +40,17 @@ public static class Patch
         }
     }
 
-    /// <summary>
-    /// Apply a patch to an input text and return the result.
-    /// </summary>
-    /// <param name="patch">Textual representation of the patch (unified diff format)</param>
-    /// <param name="original">Text onto which the patch is applied.</param>
-    /// <exception cref="InvalidPatchException">Thrown if the patch text cannot be parsed or if it is inconsistent with the input text.</exception>
-    /// <remarks>The patch metadata must match the input text perfectly. There is no fuzzy matching.</remarks>
+    /// <include file='docs.xml' path='docs/method[@name="Apply" and @overload="0"]/*'/>
     public static ReadOnlySpan<char> Apply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original)
     {
+        // The length of the resulting text is strictly less than the
+        // combined length of the patch text and the original text.
         var destination = (new char[patch.Length + original.Length]).AsSpan();
         int charsWritten = Apply(patch, original, destination);
         return destination[..charsWritten];
     }
 
-    /// <summary>
-    /// Fill a preallocated character span with the result of a patch applied to an input text.
-    /// </summary>
-    /// <param name="patch">Textual representation of the patch (unified diff format)</param>
-    /// <param name="original">Text onto which the patch is applied.</param>
-    /// <param name="destination">Buffer for containing the patched text.</param>
-    /// <param name="charsWritten">The number of characters written to the destination buffer.</param>
-    /// <returns>The length of the patched text.</returns>
-    /// <exception cref="InvalidPatchException">Thrown if the diff text cannot be parsed or if it is inconsistent with the input text.</exception>
-    /// <remarks>The patch metadata must match the input text perfectly. There is no fuzzy matching.</remarks>
+    /// <include file='docs.xml' path='docs/method[@name="Apply" and @overload="1"]/*'/>
     public static int Apply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original, Span<char> destination)
     {
         Range currentRange = default;

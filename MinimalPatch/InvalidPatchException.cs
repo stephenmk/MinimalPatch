@@ -19,8 +19,18 @@ along with MinimalPatch. If not, see <https://www.gnu.org/licenses/>.
 
 namespace MinimalPatch;
 
+/// <summary>
+/// Exception that is thrown when a given patch text cannot be parsed or is inconsistent with the given target text.
+/// </summary>
 public class InvalidPatchException : Exception
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InvalidPatchException"/> class.
+    /// </summary>
     public InvalidPatchException(string message) : base(message) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InvalidPatchException"/> class.
+    /// </summary>
     public InvalidPatchException(string message, Exception innerException) : base(message, innerException) { }
 }
