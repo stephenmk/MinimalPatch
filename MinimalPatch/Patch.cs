@@ -28,16 +28,16 @@ public static class Patch
     /// <include file='docs.xml' path='docs/method[@name="Apply" and @overload="0"]/*'/>
     public static string Apply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original)
     {
-        var diff = Parse(patch);
+        var unifiedDiff = Parse(patch);
         var input = new InputState
         {
             Patch = patch,
             Original = original,
-            LineOperations = diff.GetLineOperations(),
+            LineNumberToDiffs = unifiedDiff.GetLineNumberToDiffs(),
         };
         return string.Create
         (
-            length: original.Length + diff.TotalCharacterCountDelta,
+            length: original.Length + unifiedDiff.TotalCharacterCountDelta,
             state: input,
             action: static (output, state) => Apply(state, output)
         );
@@ -46,12 +46,12 @@ public static class Patch
     /// <include file='docs.xml' path='docs/method[@name="Apply" and @overload="1"]/*'/>
     public static int Apply(ReadOnlySpan<char> patch, ReadOnlySpan<char> original, Span<char> destination)
     {
-        var diff = Parse(patch);
+        var unifiedDiff = Parse(patch);
         var input = new InputState
         {
             Patch = patch,
             Original = original,
-            LineOperations = diff.GetLineOperations(),
+            LineNumberToDiffs = unifiedDiff.GetLineNumberToDiffs(),
         };
         return Apply(input, destination);
     }
@@ -65,23 +65,27 @@ public static class Patch
         foreach (var range in input.Original.Split('\n'))
         {
             lineNumber++;
-            if (input.LineOperations.TryGetValue(lineNumber, out var operations))
+            if (input.LineNumberToDiffs.TryGetValue(lineNumber, out var diffs))
             {
                 if (!currentRange.Equals(default))
                 {
                     charsWritten = destination.AppendLine(input.Original[currentRange], start: charsWritten);
                     currentRange = default;
                 }
-                foreach (var operation in operations)
+                foreach (var diff in diffs)
                 {
-                    var operationText = input.Patch[operation.Range];
-                    if (operation.IsOriginalLine())
+                    var operationText = input.Patch[diff.PatchRange];
+                    switch (diff.Operation)
                     {
-                        Validate(expected: operationText, actual: input.Original[range], lineNumber);
-                    }
-                    if (operation.IsOutputLine())
-                    {
-                        charsWritten = destination.AppendLine(operationText, start: charsWritten);
+                        case Operation.Equal:
+                            Validate(expected: operationText, actual: input.Original[range], lineNumber);
+                            goto case Operation.Insert;
+                        case Operation.Delete:
+                            Validate(expected: operationText, actual: input.Original[range], lineNumber);
+                            break;
+                        case Operation.Insert:
+                            charsWritten = destination.AppendLine(operationText, start: charsWritten);
+                            break;
                     }
                 }
             }
@@ -136,6 +140,6 @@ public static class Patch
     {
         public readonly ReadOnlySpan<char> Patch { get; init; }
         public readonly ReadOnlySpan<char> Original { get; init; }
-        public readonly FrozenDictionary<int, List<LineOperation>> LineOperations { get; init; }
+        public readonly FrozenDictionary<int, List<DiffLine>> LineNumberToDiffs { get; init; }
     }
 }

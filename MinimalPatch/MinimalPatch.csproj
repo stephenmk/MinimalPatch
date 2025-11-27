@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup Label="SDK">
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-    <PropertyGroup Label="NuGet Packaging">
-        <PackageId>MinimalPatch</PackageId>
-        <Version>2025.11.26</Version>
-        <Authors>Stephen Kraus</Authors>
-        <PackageDescription>Minimalistic library for applying a patch (unified diff format) to some text</PackageDescription>
-        <RepositoryUrl>https://github.com/stephenmk/MinimalPatch</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-        <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Label="SDK">
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup Label="NuGet Packaging">
+    <PackageId>MinimalPatch</PackageId>
+    <Version>2025.11.26</Version>
+    <Authors>Stephen Kraus</Authors>
+    <PackageDescription>Minimalistic library for applying a patch (unified diff format) to some text</PackageDescription>
+    <RepositoryUrl>https://github.com/stephenmk/MinimalPatch</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
 </Project>

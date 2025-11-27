@@ -22,7 +22,7 @@ namespace MinimalPatch.Internal;
 internal sealed class Hunk
 {
     public HunkHeader Header { get; }
-    public List<LineOperation>[] LineOperations { get; }
+    public List<DiffLine>[] LineOperations { get; }
 
     public Hunk(ReadOnlySpan<char> header)
     {
@@ -35,7 +35,7 @@ internal sealed class Hunk
             throw new InvalidPatchException($"Cannot parse patch hunk header: `{header}`", ex);
         }
 
-        LineOperations = new List<LineOperation>[Header.LengthA];
+        LineOperations = new List<DiffLine>[Header.LengthA];
         for (int i = 0; i < Header.LengthA; i++)
         {
             // Adjusting the initial capacity of the lists

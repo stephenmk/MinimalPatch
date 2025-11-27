@@ -34,47 +34,47 @@ internal sealed class UnifiedDiff
 
     public int TotalCharacterCountDelta { get; private set; }
 
-    public UnifiedDiff(ReadOnlySpan<char> text)
+    public UnifiedDiff(ReadOnlySpan<char> patch)
     {
         Hunk? hunk = null;
         HunkLength currentLength = default;
         byte currentDiffLineNum = 1;
 
-        foreach (var range in text.Split('\n'))
+        foreach (var range in patch.Split('\n'))
         {
-            var line = text[range];
+            var lineText = patch[range];
 
             if (currentDiffLineNum < 3)
             {
-                ValidateHeaderLine(line, currentDiffLineNum);
+                ValidateHeaderText(lineText, currentDiffLineNum);
                 currentDiffLineNum++;
             }
-            else if (line.StartsWith('@'))
+            else if (lineText.StartsWith('@'))
             {
                 AddHunk(hunk, currentLength);
-                hunk = new Hunk(line);
+                hunk = new Hunk(lineText);
                 currentLength = default;
             }
-            else if (line.Length > 0 && GetLineOperation(line[0]) is Operation operation)
+            else if (lineText.Length > 0 && GetLineOperation(lineText[0]) is Operation operation)
             {
                 AddLineOperation(hunk, operation, range, ref currentLength);
             }
-            else if (range.Start.Equals(text.Length) && range.End.Equals(text.Length))
+            else if (range.Start.Equals(patch.Length) && range.End.Equals(patch.Length))
             {
                 // Blank line at the end of the file.
             }
             else
             {
-                throw new InvalidPatchException($"Line does not begin with a standard prefix: `{line}`");
+                throw new InvalidPatchException($"Line does not begin with a standard prefix: `{lineText}`");
             }
         }
 
         AddHunk(hunk, currentLength);
     }
 
-    private static void ValidateHeaderLine(ReadOnlySpan<char> line, byte lineNumber)
+    private static void ValidateHeaderText(ReadOnlySpan<char> lineText, byte lineNumber)
     {
-        if (!line.StartsWith(HeaderPrefix(lineNumber), StringComparison.Ordinal))
+        if (!lineText.StartsWith(HeaderPrefix(lineNumber), StringComparison.Ordinal))
         {
             throw new InvalidPatchException("UnifiedDiff text does not begin with the standard header");
         }
@@ -139,16 +139,16 @@ internal sealed class UnifiedDiff
         int idx = int.Max(currentLength.A - 1, 0);
 
         // If `idx` is too large for this array, then the header metadata was incorrect.
-        hunk.LineOperations[idx].Add(new LineOperation
+        hunk.LineOperations[idx].Add(new DiffLine
         {
             Operation = operation,
-            Range = new Range(range.Start.Value + 1, range.End),
+            PatchRange = new Range(range.Start.Value + 1, range.End),
         });
     }
 
-    public FrozenDictionary<int, List<LineOperation>> GetLineOperations()
+    public FrozenDictionary<int, List<DiffLine>> GetLineNumberToDiffs()
     {
-        var pairs = new KeyValuePair<int, List<LineOperation>>[_totalLineOperationCount];
+        var pairs = new KeyValuePair<int, List<DiffLine>>[_totalLineOperationCount];
         int pairIdx = 0;
         foreach (var hunk in _hunks)
         {

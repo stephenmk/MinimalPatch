@@ -19,14 +19,7 @@ along with MinimalPatch. If not, see <https://www.gnu.org/licenses/>.
 
 namespace MinimalPatch.Internal;
 
-internal readonly record struct LineOperation(Operation Operation, Range Range)
-{
-    // All lines in file A are either `Equal` or `Delete`
-    public bool IsOriginalLine() => Operation != Operation.Insert;
-
-    // All lines in file B are either `Equal` or `Insert`
-    public bool IsOutputLine() => Operation != Operation.Delete;
-}
+internal readonly record struct DiffLine(Operation Operation, Range PatchRange) { }
 
 internal enum Operation : byte
 {
