@@ -39,7 +39,7 @@ public static class Patch
         (
             length: original.Length + unifiedDiff.TotalCharacterCountDelta,
             state: input,
-            action: static (output, state) => Apply(state, output)
+            action: static (destination, input) => Apply(input, destination)
         );
     }
 

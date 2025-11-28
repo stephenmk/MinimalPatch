@@ -24,7 +24,11 @@ namespace MinimalPatch.Internal;
 internal sealed class UnifiedDiff
 {
     private readonly List<Hunk> _hunks = [];
-    private int _totalLineDiffCount = 0;
+
+    /// <summary>
+    /// The total number of lines from file A (the original file) affected by this diff.
+    /// </summary>
+    private int _totalDiffLinesCount = 0;
 
     private ref struct HunkLength
     {
@@ -96,7 +100,7 @@ internal sealed class UnifiedDiff
         if (hunk.Header.LengthA == actualLength.A && hunk.Header.LengthB == actualLength.B)
         {
             _hunks.Add(hunk);
-            _totalLineDiffCount += hunk.LineDiffs.Length;
+            _totalDiffLinesCount += hunk.ArrayOfDiffLines.Length;
         }
         else
         {
@@ -139,7 +143,7 @@ internal sealed class UnifiedDiff
         int idx = int.Max(currentLength.A - 1, 0);
 
         // If `idx` is too large for this array, then the header metadata was incorrect.
-        hunk.LineDiffs[idx].Add(new DiffLine
+        hunk.ArrayOfDiffLines[idx].Add(new DiffLine
         {
             Operation = operation,
             PatchRange = new Range(range.Start.Value + 1, range.End),
@@ -148,25 +152,25 @@ internal sealed class UnifiedDiff
 
     public FrozenDictionary<int, List<DiffLine>> GetLineNumberToDiffs()
     {
-        var pairs = new KeyValuePair<int, List<DiffLine>>[_totalLineDiffCount];
+        var pairs = new KeyValuePair<int, List<DiffLine>>[_totalDiffLinesCount];
 
         // Need to validate the line numbers manually because .ToFrozenDictionary() doesn't complain about repeated keys.
         // https://learn.microsoft.com/en-us/dotnet/api/system.collections.frozen.frozendictionary.tofrozendictionary
         // "If the same key appears multiple times in the input, the last one in the sequence takes precedence."
         // "This differs from ToDictionary, where duplicate keys result in an exception."
-        var usedLineNumbers = new HashSet<int>(_totalLineDiffCount);
+        var usedLineNumbers = new HashSet<int>(_totalDiffLinesCount);
 
         int pairIdx = 0;
         foreach (var hunk in _hunks)
         {
-            for (int i = 0; i < hunk.LineDiffs.Length; i++)
+            for (int i = 0; i < hunk.ArrayOfDiffLines.Length; i++)
             {
                 int lineNumber = hunk.Header.StartA + i;
                 if (!usedLineNumbers.Add(lineNumber))
                 {
                     throw new InvalidPatchException($"Patch has overlapping hunks for line number {lineNumber}");
                 }
-                pairs[pairIdx] = new(lineNumber, hunk.LineDiffs[i]);
+                pairs[pairIdx] = new(lineNumber, hunk.ArrayOfDiffLines[i]);
                 pairIdx++;
             }
         }
